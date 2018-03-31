@@ -72,7 +72,7 @@
 #define ORANGE     0xFF3000
 #define ULTRAWHITE 0xFFFFFFFF
 
-#define MODE_COUNT 57
+#define MODE_COUNT 58
 
 #define FX_MODE_STATIC                   0
 #define FX_MODE_BLINK                    1
@@ -131,6 +131,7 @@
 #define FX_MODE_TRICOLOR_CHASE          54
 #define FX_MODE_ICU                     55
 #define FX_MODE_CUSTOM                  56
+#define FX_MODE_METEOR_RAIN             57
 
 class WS2812FX : public Adafruit_NeoPixel {
 
@@ -224,6 +225,7 @@ class WS2812FX : public Adafruit_NeoPixel {
       _mode[FX_MODE_ICU]                     = &WS2812FX::mode_icu;
 #endif
       _mode[FX_MODE_CUSTOM]                  = &WS2812FX::mode_custom;
+	  _mode[FX_MODE_METEOR_RAIN]             = &WS2812FX::mode_meteor_rain;
 
       _name[FX_MODE_STATIC]                    = F("Static");
       _name[FX_MODE_BLINK]                     = F("Blink");
@@ -282,6 +284,7 @@ class WS2812FX : public Adafruit_NeoPixel {
       _name[FX_MODE_TRICOLOR_CHASE]            = F("Tricolor Chase");
       _name[FX_MODE_ICU]                       = F("ICU");
       _name[FX_MODE_CUSTOM]                    = F("Custom");
+	  _name[FX_MODE_METEOR_RAIN]               = F("Meteor Rain");
 
       _brightness = DEFAULT_BRIGHTNESS;
       _running = false;
@@ -420,6 +423,9 @@ class WS2812FX : public Adafruit_NeoPixel {
       mode_tricolor_chase(void),
       mode_icu(void),
       mode_custom(void);
+	  fadeToBlack(uint16_t, byte);
+	  meteorRain(void);
+	  mode_meteor_rain(void);
 
     boolean
       _running,

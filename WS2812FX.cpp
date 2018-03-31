@@ -1376,8 +1376,65 @@ uint16_t WS2812FX::mode_custom() {
 }
 
 /*
+* Fades all pixel to Black (percentage rgb)
+*/
+void WS2812FX::fadeToBlack(uint16_t ledNo, byte fadeValue) {
+  uint32_t oldColor = _strip.getPixelColor(ledNo);
+  uint8_t r = (oldColor & 0x00ff0000UL) >> 16;
+  uint8_t g = (oldColor & 0x0000ff00UL) >> 8;
+  uint8_t b = (oldColor & 0x000000ffUL);
+
+  r=(r<=10)? 0 : (int) r-(r*fadeValue/256);
+  g=(g<=10)? 0 : (int) g-(g*fadeValue/256);
+  b=(b<=10)? 0 : (int) b-(b*fadeValue/256);
+    
+  this->setPixelColor(ledNo, r, g, b);
+}
+
+/*
  * Custom mode helper
  */
 void WS2812FX::setCustomMode(uint16_t (*p)()) {
   customMode = p;
+}
+
+/*
+* Meteor Rain
+* https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/#LEDStripEffectMeteorRain
+*/
+  
+uint16_t WS2812FX::meteorRain(uint8_t meteorTrailDecay, boolean meteorRandomDecay) {  
+  uint16_t meteorSize = SEGMENT_LENGTH * 0.15;  // Meteor Length (can be optimized)
+  
+  if(SEGMENT_RUNTIME.counter_mode_step == 0){
+    for(uint16_t i=SEGMENT.start; i <= SEGMENT.stop; i++) {
+      this->setPixelColor(i, BLACK);
+    }
+  }
+  
+  if( SEGMENT_RUNTIME.counter_mode_step <= SEGMENT_LENGTH*2 ) {
+    // fade brightness all LEDs one step
+    for(uint16_t i = 0; i <= SEGMENT_LENGTH; i++) {
+      if( (!meteorRandomDecay) || (random(10)>5) ) {
+        this->fadeToBlack(i, meteorTrailDecay );        
+      }
+    }
+    // draw meteor
+    for(uint16_t i = 0; i <= meteorSize; i++) {
+      if( ( (SEGMENT_RUNTIME.counter_mode_step)-i <= SEGMENT_LENGTH) && ((SEGMENT_RUNTIME.counter_mode_step)-i >= 0) ) {
+        if(!SEGMENT.reverse){
+          this->setPixelColor(SEGMENT_RUNTIME.counter_mode_step - i, SEGMENT.colors[0]);
+        } else {
+          this->setPixelColor(SEGMENT_LENGTH - SEGMENT_RUNTIME.counter_mode_step + i, SEGMENT.colors[0]);
+        }
+      } 
+    }
+  } 
+
+  SEGMENT_RUNTIME.counter_mode_step = (SEGMENT_RUNTIME.counter_mode_step + 1) % SEGMENT_LENGTH;
+  return (SEGMENT.speed / SEGMENT_LENGTH);
+}
+  
+uint16_t WS2812FX::mode_meteor_rain(void) {
+  return meteorRain(64, true);
 }
