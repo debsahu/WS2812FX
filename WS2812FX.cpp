@@ -1379,7 +1379,7 @@ uint16_t WS2812FX::mode_custom() {
 * Fades all pixel to Black (percentage rgb)
 */
 void WS2812FX::fadeToBlack(uint16_t ledNo, byte fadeValue) {
-  uint32_t oldColor = _strip.getPixelColor(ledNo);
+  uint32_t oldColor = Adafruit_NeoPixel::getPixelColor(ledNo);
   uint8_t r = (oldColor & 0x00ff0000UL) >> 16;
   uint8_t g = (oldColor & 0x0000ff00UL) >> 8;
   uint8_t b = (oldColor & 0x000000ffUL);
